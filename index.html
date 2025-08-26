@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto CTF Challenge</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+
+      body {
+        background-color: #f8f9fa;
+        color: #333;
+        line-height: 1.6;
+        padding: 20px;
+        max-width: 800px;
+        margin: 0 auto;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        padding: 20px 0;
+      }
+
+      h1 {
+        font-size: 2.2rem;
+        color: #2c3e50;
+        margin-bottom: 10px;
+        font-weight: 300;
+      }
+
+      .subtitle {
+        color: #7f8c8d;
+        font-size: 1.1rem;
+      }
+
+      .challenge {
+        background-color: white;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        padding: 25px;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #3498db;
+      }
+
+      .challenge-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #ecf0f1;
+      }
+
+      .challenge-title {
+        font-size: 1.4rem;
+        color: #2c3e50;
+        font-weight: 500;
+      }
+
+      .challenge-number {
+        background-color: #3498db;
+        color: white;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+      }
+
+      .ciphertext {
+        background-color: #f8f9fa;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 6px;
+        font-family: monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+        color: #2c3e50;
+        border: 1px solid #eaecee;
+      }
+
+      .input-group {
+        display: flex;
+        margin: 20px 0 10px;
+      }
+
+      input[type="text"] {
+        flex: 1;
+        padding: 12px 15px;
+        background-color: white;
+        border: 1px solid #ddd;
+        color: #2c3e50;
+        font-size: 1rem;
+        border-radius: 4px 0 0 4px;
+        outline: none;
+        transition: border 0.3s;
+      }
+
+      input[type="text"]:focus {
+        border-color: #3498db;
+      }
+
+      button {
+        background-color: #3498db;
+        color: white;
+        border: none;
+        padding: 0 20px;
+        cursor: pointer;
+        font-size: 1rem;
+        border-radius: 0 4px 4px 0;
+        transition: background-color 0.3s;
+      }
+
+      button:hover {
+        background-color: #2980b9;
+      }
+
+      button:disabled {
+        background-color: #95a5a6;
+        cursor: not-allowed;
+      }
+
+      .hint {
+        background-color: #fef9e7;
+        border-left: 3px solid #f1c40f;
+        padding: 12px 15px;
+        margin: 15px 0;
+        font-size: 0.95rem;
+        color: #7d6608;
+        border-radius: 0 4px 4px 0;
+      }
+
+      .hint-button {
+        background-color: #f39c12;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin: 10px 0;
+        transition: background-color 0.3s;
+      }
+
+      .hint-button:hover {
+        background-color: #e67e22;
+      }
+
+      .result {
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-weight: 500;
+      }
+
+      .success {
+        background-color: #eafaf1;
+        color: #27ae60;
+        border: 1px solid #a3e4bc;
+      }
+
+      .error {
+        background-color: #fdedec;
+        color: #c0392b;
+        border: 1px solid #f5b7b1;
+      }
+
+      .loading {
+        background-color: #e8f4fd;
+        color: #2980b9;
+        border: 1px solid #a3d5f0;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .flag-container {
+        text-align: center;
+        margin: 40px 0;
+        padding: 30px;
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-top: 4px solid #2ecc71;
+      }
+
+      .flag {
+        font-size: 1.5rem;
+        color: #27ae60;
+        font-family: monospace;
+        margin-top: 15px;
+        padding: 15px;
+        background-color: #f8f9fa;
+        border-radius: 4px;
+        word-break: break-all;
+      }
+
+      .progress {
+        display: flex;
+        justify-content: space-between;
+        margin: 30px 0;
+        position: relative;
+      }
+
+      .progress-line {
+        position: absolute;
+        height: 2px;
+        background-color: #ecf0f1;
+        top: 50%;
+        left: 30px;
+        right: 30px;
+        transform: translateY(-50%);
+        z-index: 1;
+      }
+
+      .progress-step {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: white;
+        border: 2px solid #ecf0f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 2;
+        font-weight: 500;
+        color: #7f8c8d;
+      }
+
+      .progress-step.active {
+        border-color: #3498db;
+        color: #3498db;
+        background-color: #eaf5ff;
+      }
+
+      .progress-step.completed {
+        border-color: #2ecc71;
+        background-color: #2ecc71;
+        color: white;
+      }
+
+      .server-status {
+        background-color: #fdedec;
+        border: 1px solid #f5b7b1;
+        color: #c0392b;
+        padding: 10px;
+        border-radius: 4px;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      footer {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 1px solid #ecf0f1;
+        color: #7f8c8d;
+        font-size: 0.9rem;
+      }
+
+      @media (max-width: 600px) {
+        .input-group {
+          flex-direction: column;
+        }
+
+        input[type="text"] {
+          border-radius: 4px;
+          margin-bottom: 10px;
+        }
+
+        button {
+          border-radius: 4px;
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Crypto CTF Challenge</h1>
+      <p class="subtitle">Decrypt all three levels to reveal the final flag</p>
+    </div>
+
+    <div class="server-status hidden" id="serverStatus">
+      <strong>Server Connection Error:</strong> Unable to validate answers.
+      Please ensure the server is running on port 3001.
+    </div>
+
+    <div class="progress">
+      <div class="progress-line"></div>
+      <div class="progress-step active" id="progress1">1</div>
+      <div class="progress-step" id="progress2">2</div>
+      <div class="progress-step" id="progress3">3</div>
+    </div>
+
+    <div class="challenge" id="challenge1">
+      <div class="challenge-header">
+        <h2 class="challenge-title">Level 1</h2>
+        <span class="challenge-number">#1</span>
+      </div>
+      <p>Decipher this code:</p>
+      <div class="ciphertext">
+        ++++++++++[>+>+++>+++++++>++++++++++<<<<-]>>>++++++++.>+++++++++++.+++++.<+++++++++++++++++.-----------------------.>-------------------.+++++++++++.------.-------.<------.>++.+++.
+      </div>
+      <div class="input-group">
+        <input type="text" id="answer1" placeholder="Enter your answer" />
+        <button onclick="checkAnswer(1)" id="submit1">Submit</button>
+      </div>
+      <p class="result" id="result1"></p>
+    </div>
+
+    <div class="challenge hidden" id="challenge2">
+      <div class="challenge-header">
+        <h2 class="challenge-title">Level 2: Double Disguise</h2>
+        <span class="challenge-number">#2</span>
+      </div>
+      <p>Decode this message:</p>
+      <div class="ciphertext">
+        JNHFQV2ZGVKEMTKSKBLU2MSMKNHU4MSGGY2UIU2OIZIVOWKJJE======
+      </div>
+      <button class="hint-button" onclick="showHint(2)">Show Hint</button>
+      <div class="hint hidden" id="hint2">
+        <strong>Hint:</strong> Sometimes, one layer of disguise isn't enough —
+        try peeling it twice.
+      </div>
+      <div class="input-group">
+        <input type="text" id="answer2" placeholder="Enter your answer" />
+        <button onclick="checkAnswer(2)" id="submit2">Submit</button>
+      </div>
+      <p class="result" id="result2"></p>
+    </div>
+
+    <div class="challenge hidden" id="challenge3">
+      <div class="challenge-header">
+        <h2 class="challenge-title">Level 3: Transformation Chain</h2>
+        <span class="challenge-number">#3</span>
+      </div>
+      <p>Decrypt this ciphertext:</p>
+      <div class="ciphertext">
+        NTggNzIgNzIgNjMgNWYgNzQgNjIgNzYgNjEgNzQgNWYgNzggNzYgNzE=
+      </div>
+      <div class="hint">
+        <strong>Hint:</strong> Numbers turn to text, text hides in code, and the
+        letters might not be what they seem.
+      </div>
+      <div class="input-group">
+        <input type="text" id="answer3" placeholder="Enter your answer" />
+        <button onclick="checkAnswer(3)" id="submit3">Submit</button>
+      </div>
+      <p class="result" id="result3"></p>
+    </div>
+
+    <div class="flag-container hidden" id="finalFlag">
+      <h2>Congratulations!</h2>
+      <p>You've successfully decrypted all challenges!</p>
+      <div class="flag" id="flagText"></div>
+    </div>
+
+
+    <script>
+      // Track completed challenges
+      const completed = {
+        1: false,
+        2: false,
+        3: false,
+      };
+
+      // Check server connectivity on page load
+      let serverConnected = false;
+
+      async function testServerConnection() {
+        try {
+          const response = await fetch("/validate/test/connection", {
+            method: "GET",
+            timeout: 3000,
+          });
+          if (response.ok) {
+            serverConnected = true;
+          }
+        } catch (error) {
+          serverConnected = false;
+          document.getElementById("serverStatus").classList.remove("hidden");
+        }
+      }
+
+      function showHint(level) {
+        const hintElement = document.getElementById(`hint${level}`);
+        hintElement.classList.remove("hidden");
+
+        // Hide the hint button after clicking
+        const hintButton = event.target;
+        hintButton.style.display = "none";
+      }
+
+      async function checkAnswer(level) {
+        const userAnswer = document
+          .getElementById(`answer${level}`)
+          .value.trim();
+        const resultElement = document.getElementById(`result${level}`);
+        const submitButton = document.getElementById(`submit${level}`);
+
+        if (!userAnswer) {
+          resultElement.innerHTML =
+            '<div class="error">Please enter an answer</div>';
+          return;
+        }
+
+        // Show loading state
+        submitButton.disabled = true;
+        submitButton.textContent = "Checking...";
+        resultElement.innerHTML =
+          '<div class="loading">Validating your answer...</div>';
+
+        try {
+          // Call the backend API to validate the answer
+          const response = await fetch(
+            `/validate/${level}/${encodeURIComponent(userAnswer)}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`Server responded with status: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          if (data.correct) {
+            resultElement.innerHTML =
+              '<div class="success">✅ Correct! Well done.</div>';
+            completed[level] = true;
+            document
+              .getElementById(`progress${level}`)
+              .classList.add("completed");
+
+            // Show next challenge if available
+            if (level < 3) {
+              setTimeout(() => {
+                document
+                  .getElementById(`challenge${level + 1}`)
+                  .classList.remove("hidden");
+                document
+                  .getElementById(`progress${level + 1}`)
+                  .classList.add("active");
+              }, 1000);
+            }
+
+            // Check if all challenges are completed
+            if (data.allCompleted && data.finalFlag) {
+              setTimeout(() => {
+                document.getElementById("flagText").textContent =
+                  data.finalFlag;
+                document.getElementById("finalFlag").classList.remove("hidden");
+              }, 1500);
+            }
+          } else {
+            resultElement.innerHTML =
+              '<div class="error">❌ Incorrect. Try again!</div>';
+          }
+        } catch (error) {
+          console.error("Server validation failed:", error);
+          resultElement.innerHTML =
+            '<div class="error">⚠️ Server error. Please check that the server is running on port 3001.</div>';
+
+          // Show server status warning if not already shown
+          if (
+            !document
+              .getElementById("serverStatus")
+              .classList.contains("hidden")
+          ) {
+            document.getElementById("serverStatus").classList.remove("hidden");
+          }
+        } finally {
+          // Reset button state
+          submitButton.disabled = false;
+          submitButton.textContent = "Submit";
+        }
+      }
+
+      // Allow submitting with Enter key
+      document.addEventListener("DOMContentLoaded", function () {
+        // Test server connection
+        testServerConnection();
+
+        const inputs = document.querySelectorAll('input[type="text"]');
+        inputs.forEach((input, index) => {
+          input.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+              const submitButton = document.getElementById(
+                `submit${index + 1}`
+              );
+              if (!submitButton.disabled) {
+                checkAnswer(index + 1);
+              }
+            }
+          });
+        });
+      });
+    </script>
+  </body>
+</html>

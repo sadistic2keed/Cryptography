@@ -1,0 +1,23 @@
+{
+  "name": "crypto-ctf",
+  "version": "1.0.0",
+  "description": "A small Crypto CTF with 3 levels",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  },
+  "keywords": [
+    "ctf",
+    "crypto",
+    "challenge"
+  ],
+  "author": "Manash Hada",
+  "license": "Flagforge"
+}
