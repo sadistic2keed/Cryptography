@@ -1,12 +1,12 @@
 const express = require("express");
 const path = require("path");
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3002;
 
-// Serve static files from the same directory
+// Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// Answers for validation
+// Answers for validation (on server side for security)
 const answers = {
   1: "Not_Half_Bad",
   2: "Solved_first_trial!",
@@ -14,7 +14,6 @@ const answers = {
 };
 
 // Simple in-memory storage for demo purposes
-// In a real application, use a database or sessions
 const userProgress = {};
 
 app.get("/", (req, res) => {
@@ -25,7 +24,10 @@ app.get("/", (req, res) => {
 app.get("/validate/:level/:answer", (req, res) => {
   const level = parseInt(req.params.level);
   const userAnswer = decodeURIComponent(req.params.answer);
-  const userId = req.ip; // Simple user identification
+  const userId = req.ip;
+
+  // Set CORS headers for cross-origin requests
+  res.setHeader("Access-Control-Allow-Origin", "*");
 
   if (!userProgress[userId]) {
     userProgress[userId] = { completed: { 1: false, 2: false, 3: false } };
@@ -34,7 +36,6 @@ app.get("/validate/:level/:answer", (req, res) => {
   if (userAnswer.toLowerCase() === answers[level].toLowerCase()) {
     userProgress[userId].completed[level] = true;
 
-    // Check if all challenges are completed
     const allCompleted =
       userProgress[userId].completed[1] &&
       userProgress[userId].completed[2] &&
@@ -43,13 +44,13 @@ app.get("/validate/:level/:answer", (req, res) => {
     res.json({
       correct: true,
       allCompleted: allCompleted,
-      finalFlag: allCompleted ? "Flag{Don't_take_it_as_a_torture}forge" : null,
+      finalFlag: allCompleted ? "Flag{Dont_take_it_as_a_torture}forge" : null,
     });
   } else {
     res.json({ correct: false });
   }
 });
 
-app.listen(3001, () => {
-  console.log(`CTF app running at http://localhost:3001`);
+app.listen(PORT, () => {
+  console.log(`CTF app running on port ${PORT}`);
 });
