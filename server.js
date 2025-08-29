@@ -44,7 +44,7 @@ app.get("/validate/:level/:answer", (req, res) => {
     res.json({
       correct: true,
       allCompleted: allCompleted,
-      finalFlag: allCompleted ? "Flag{Dont_take_it_as_a_torture}forge" : null,
+      finalFlag: allCompleted ? "Flag{Don't_take_it_as_a_torture}forge" : null,
     });
   } else {
     res.json({ correct: false });
